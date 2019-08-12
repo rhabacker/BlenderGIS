@@ -40,6 +40,7 @@ CAM_GEOREF = True
 EXPORT_SHP = True
 GET_SRTM = True
 IMPORT_GEORASTER = True
+IMPORT_OGR = True
 IMPORT_OSM = True
 IMPORT_SHP = True
 IMPORT_ASC = True
@@ -50,6 +51,11 @@ BASEMAPS = True
 DROP = True
 
 import bpy, os
+
+try:
+    from osgeo import ogr
+except:
+    IMPORT_OGR = False
 
 import logging
 #temporary set log level, will be overriden reading addon prefs
@@ -78,6 +84,8 @@ if GET_SRTM:
 	from .operators import io_get_srtm
 if IMPORT_GEORASTER:
 	from .operators import io_import_georaster
+if IMPORT_OGR:
+	from .operators import io_import_ogr
 if IMPORT_OSM:
 	from .operators import io_import_osm
 if IMPORT_SHP:
@@ -103,6 +111,8 @@ icons_dict = {}
 class VIEW3D_MT_menu_gis_import(bpy.types.Menu):
 	bl_label = "Import"
 	def draw(self, context):
+		if IMPORT_OGR:
+			self.layout.operator("importgis.ogr_file_dialog", icon_value=icons_dict["ogr"].icon_id, text='OGR supported files (.*)')
 		if IMPORT_SHP:
 			self.layout.operator("importgis.shapefile_file_dialog", icon_value=icons_dict["shp"].icon_id, text='Shapefile (.shp)')
 		if IMPORT_GEORASTER:
@@ -210,6 +220,8 @@ def register():
 		view3d_mapviewer.register()
 	if IMPORT_GEORASTER:
 		io_import_georaster.register()
+	if IMPORT_OGR:
+		io_import_ogr.register()
 	if IMPORT_SHP:
 		io_import_shp.register()
 	if EXPORT_SHP:
@@ -278,6 +290,8 @@ def unregister():
 		view3d_mapviewer.unregister()
 	if IMPORT_GEORASTER:
 		io_import_georaster.unregister()
+	if IMPORT_OGR:
+		io_import_ogr.unregister()
 	if IMPORT_SHP:
 		io_import_shp.unregister()
 	if EXPORT_SHP:
